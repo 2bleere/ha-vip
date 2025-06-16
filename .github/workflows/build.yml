@@ -1,0 +1,76 @@
+name: Build and Test HA VIP
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.24
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
+      
+    - name: Build for ARM64
+      run: GOOS=linux GOARCH=arm64 go build -o ha-vip-linux-arm64 .
+      
+    - name: Upload ARM64 Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ha-vip-linux-arm64
+        path: ha-vip-linux-arm64
+        
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.24
+        
+    - name: Build Release Artifacts
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "Building version $VERSION"
+        mkdir -p release/ha-vip-$VERSION
+        go build -o release/ha-vip-$VERSION/ha-vip -ldflags "-X main.version=$VERSION" .
+        GOOS=linux GOARCH=arm64 go build -o release/ha-vip-$VERSION/ha-vip-linux-arm64 -ldflags "-X main.version=$VERSION" .
+        cp config.yaml cert.pem key.pem ha-vip.service setup_ha_vip.sh README.md release/ha-vip-$VERSION/
+        cd release && tar -czvf ha-vip-$VERSION.tar.gz ha-vip-$VERSION
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/ha-vip-${{ github.ref_name }}.tar.gz
+        asset_name: ha-vip-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip
