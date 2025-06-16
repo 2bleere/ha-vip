@@ -10,12 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
-        go-version: 1.24
+        go-version: '1.24'
 
     - name: Build
       run: go build -v ./...
@@ -27,7 +27,7 @@ jobs:
       run: GOOS=linux GOARCH=arm64 go build -o ha-vip-linux-arm64 .
       
     - name: Upload ARM64 Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ha-vip-linux-arm64
         path: ha-vip-linux-arm64
@@ -37,12 +37,12 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
-        go-version: 1.24
+        go-version: '1.24'
         
     - name: Build Release Artifacts
       run: |
@@ -55,22 +55,11 @@ jobs:
         cd release && tar -czvf ha-vip-$VERSION.tar.gz ha-vip-$VERSION
         
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        name: Release ${{ github.ref_name }}
         draft: false
         prerelease: false
-        
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
+        files: ./release/ha-vip-${{ github.ref_name }}.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./release/ha-vip-${{ github.ref_name }}.tar.gz
-        asset_name: ha-vip-${{ github.ref_name }}.tar.gz
-        asset_content_type: application/gzip
