@@ -1,0 +1,18 @@
+k8s: #reserved for =kubernetes integration
+  enabled: true
+  api_server: "https://k8s-api.example.com"
+  token: "your-k8s-token"
+  ca_cert: "ca.crt"
+node_id: "node1"
+priority: 1
+interface: "eth0"
+vip: "192.168.1.200/24"
+peers:
+  - "192.168.1.201:9999"
+  - "192.168.1.202:9999"
+  - "192.168.1.203:9999"
+port: 9999
+heartbeat_interval: 1  # Reduced from 2 to 1 second for faster detection
+election_timeout: 2    # Reduced from 5 to 2 seconds for faster failover
+tls_cert: "cert.pem"
+tls_key: "key.pem"
