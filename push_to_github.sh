@@ -26,16 +26,27 @@ echo "4. Click 'Create repository'"
 echo ""
 read -p "Press Enter after you've created the GitHub repository... "
 
-echo "Pushing to GitHub..."
+echo "Pushing main branch to GitHub..."
 git push -u origin main
 
 if [ $? -eq 0 ]; then
-    echo "Success! Your code is now on GitHub at: https://github.com/$USERNAME/$REPO_NAME"
-    echo ""
-    echo "Next steps:"
-    echo "- Set up GitHub Pages for documentation"
-    echo "- Create releases for your compiled binaries"
-    echo "- Configure branch protection rules"
+    echo "Main branch pushed successfully!"
+    
+    echo "Pushing tags to GitHub..."
+    git push --tags
+    
+    if [ $? -eq 0 ]; then
+        echo "Tags pushed successfully! GitHub Actions will automatically build releases from tags."
+        echo ""
+        echo "Success! Your code is now on GitHub at: https://github.com/$USERNAME/$REPO_NAME"
+        echo ""
+        echo "Next steps:"
+        echo "- Set up GitHub Pages for documentation"
+        echo "- Check GitHub Actions workflow status"
+        echo "- Configure branch protection rules"
+    else
+        echo "There was an error pushing tags to GitHub."
+    fi
 else
     echo "There was an error pushing to GitHub."
     echo "Make sure your GitHub repository exists and you have the correct permissions."
