@@ -1,0 +1,33 @@
+# HA VIP Manager Configuration for In-Cluster Deployment
+# This configuration is used when ha-vip runs as a pod inside Kubernetes
+
+# Kubernetes configuration
+k8s:
+  enabled: true
+  in_cluster: true
+  # Note: When in_cluster is true, api_server, token, and ca_cert are automatically
+  # discovered from the service account mounted in the pod
+  api_server: ""   # Not used when in_cluster=true
+  token: ""        # Not used when in_cluster=true  
+  ca_cert: ""      # Not used when in_cluster=true
+
+# Node identification
+node_id: "node-1"
+priority: 100
+
+# Network configuration
+interface: "eth0"
+vip: "192.168.1.100"
+peers:
+  - "192.168.1.10:8080"
+  - "192.168.1.11:8080"
+  - "192.168.1.12:8080"
+port: 8080
+
+# Timing configuration
+heartbeat_interval: 1
+election_timeout: 5
+
+# TLS configuration for peer communication
+tls_cert: "/etc/ha-vip/cert.pem"
+tls_key: "/etc/ha-vip/key.pem"

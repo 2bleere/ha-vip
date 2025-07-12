@@ -1,0 +1,31 @@
+# HA VIP Manager Configuration for External Deployment
+# This configuration is used when ha-vip runs outside Kubernetes
+
+# Kubernetes configuration
+k8s:
+  enabled: true
+  in_cluster: false
+  api_server: "https://127.0.0.1:6443"
+  token: "your-service-account-token-here"
+  ca_cert: "/etc/kubernetes/ca.crt"
+
+# Node identification
+node_id: "rack1-slot1"
+priority: 100
+
+# Network configuration
+interface: "eth0"
+vip: "192.168.1.100"
+peers:
+  - "192.168.1.10:8080"
+  - "192.168.1.11:8080"
+  - "192.168.1.12:8080"
+port: 8080
+
+# Timing configuration
+heartbeat_interval: 1
+election_timeout: 5
+
+# TLS configuration for peer communication
+tls_cert: "/etc/ha-vip/cert.pem"
+tls_key: "/etc/ha-vip/key.pem"

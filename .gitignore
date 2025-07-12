@@ -10,8 +10,10 @@
 *.dylib
 *.test
 *.out
+*.pem
 /ha-vip
 /ha-vip-linux-*
 vendor/
 dist/
 ha-vip-arm64/
+releases/

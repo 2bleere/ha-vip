@@ -1,0 +1,34 @@
+# Updated service file for non-root deployment with capabilities
+[Unit]
+Description=HA VIP Manager (Non-root with capabilities)
+Documentation=https://github.com/2bleere/ha-vip
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ha-vip
+WorkingDirectory=/etc/ha-vip
+Restart=always
+RestartSec=5
+
+# Run as dedicated non-root user
+User=ha-vip
+Group=ha-vip
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/etc/ha-vip
+CapabilityBoundingSet=CAP_NET_ADMIN
+AmbientCapabilities=CAP_NET_ADMIN
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ha-vip
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=HA VIP Manager
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ha-vip
+WorkingDirectory=/etc/ha-vip
+Restart=always
+RestartSec=5
+User=root
+Environment=GODEBUG=x509ignoreCN=0
+
+[Install]
+WantedBy=multi-user.target
